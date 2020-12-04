@@ -205,10 +205,13 @@ func (w *WriteAPIImpl) WriteRecord(line string) {
 func (w *WriteAPIImpl) WritePoint(point *write.Point) {
 	line, err := w.service.EncodePoints(point)
 	if err != nil {
+		if w.errCh != nil {
+			w.errCh <- err
+		}
 		log.Errorf("point encoding error: %s\n", err.Error())
-	} else {
-		w.bufferCh <- line
-	}
+		return
+	} 
+	w.bufferCh <- line
 }
 
 func buffer(lines []string) string {
